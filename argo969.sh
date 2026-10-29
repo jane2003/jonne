@@ -2188,12 +2188,21 @@ kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) >/dev/null 2>&1
 upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip
 exit
 elif [ "$1" = "upa" ]; then
-for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/c"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
-kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) >/dev/null 2>&1
 argocore=$({ command -v curl >/dev/null 2>&1 && curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
 echo "下载Cloudflared-argo最新正式版内核：$argocore"
-url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/agsbx/cloudflared"; (command -v curl>/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
-chmod +x "$HOME/agsbx/cloudflared"
+url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/agsbx/cloudflared"; cfnew="$HOME/agsbx/cloudflared.new"
+rm -f "$cfnew"
+(command -v curl>/dev/null 2>&1 && curl -Lo "$cfnew" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 300 wget -O "$cfnew" --tries=2 "$url")
+chmod +x "$cfnew" 2>/dev/null
+if [ ! -s "$cfnew" ] || ! "$cfnew" version >/dev/null 2>&1; then
+rm -f "$cfnew"
+echo "Cloudflared-argo内核下载失败或文件不可用，本次更新已放弃，隧道未受影响"
+else
+cp -a "$out" "$out.bak" 2>/dev/null
+for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/c"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
+kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) >/dev/null 2>&1
+mv -f "$cfnew" "$out"
+chmod +x "$out"
 if [ -e "$HOME/agsbx/sbargotoken.log" ]; then
 if pidof systemd >/dev/null 2>&1; then
 systemctl restart argo >/dev/null 2>&1
@@ -2206,6 +2215,7 @@ else
 nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log 2>/dev/null) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 fi
 echo "Cloudflared-argo内核更新完成" && sleep 2 && cip
+fi
 exit
 elif [ "$1" = "res" ]; then
 for P in /proc/[0-9]*; do
