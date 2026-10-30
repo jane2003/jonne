@@ -51,7 +51,7 @@ agsbx upa
 情况二：不想动已装脚本，直接用仓库最新版跑一次（新脚本带 upa 逻辑，跑完不留痕）
 
 cd ~ && bash <(curl -Ls https://raw.githubusercontent.com/jane2003/jonne/main/argo969.sh) upa
-这条我刚验证过：upa 参数能正确传进脚本并进入 upa 分支。
+这条验证过：upa 参数能正确传进脚本并进入 upa 分支。
 
 情况三：完全不用脚本，三条裸命令
 
