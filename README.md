@@ -65,8 +65,6 @@ chmod +x /root/agsbx/cloudflared.new && /root/agsbx/cloudflared.new version
 
 mv -f /root/agsbx/cloudflared.new /root/agsbx/cloudflared && systemctl restart argo
 
-如果 VPS 是 arm 的（N1 那类），把 amd64 换成 arm64。
-
 更新后怎么确认
 
 /root/agsbx/cloudflared version          # 应为 2026.10.5
