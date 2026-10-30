@@ -68,5 +68,7 @@ mv -f /root/agsbx/cloudflared.new /root/agsbx/cloudflared && systemctl restart a
 更新后怎么确认
 
 /root/agsbx/cloudflared version          # 应为 2026.10.5
+
 systemctl status argo --no-pager | head -5
+
 journalctl -u argo -n 30 --no-pager | grep 'Registered tunnel connection'
